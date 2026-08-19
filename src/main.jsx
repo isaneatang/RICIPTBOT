@@ -55,6 +55,13 @@ createAppKit({
     analytics: false, // keep the MVP quiet
     email: false, // no email/social login for the MVP
     socials: false,
+    // Remove the wallet-menu money features (Fund / Buy / Swap / Send / Activity):
+    // RICIPT is a passport tool, not a wallet.
+    onramp: false, // "Buy crypto"
+    receive: false, // "Receive / Fund wallet"
+    swaps: false, // "Swap"
+    send: false, // "Send"
+    history: false, // "Activity"
   },
   themeVariables: {
     '--w3m-accent': '#c8f54a',

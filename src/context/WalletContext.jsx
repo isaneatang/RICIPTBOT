@@ -31,11 +31,7 @@ import { useAppKitNetwork } from '@reown/appkit/react';
 import { useDisconnect } from '@reown/appkit/react';
 
 import { activeNetwork, activeChain } from '../config/chains.js';
-import {
-  getWalletChainId,
-  switchToActiveChain,
-  addActiveChainToWallet,
-} from '../blockchain/client.js';
+import { getWalletChainId, waitForChainId } from '../blockchain/client.js';
 
 const WalletContext = createContext(null);
 
@@ -57,6 +53,7 @@ export function WalletProvider({ children }) {
   const { address, isConnected, status } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider('eip155');
   const appKitNetwork = useAppKitNetwork();
+  const { switchNetwork: appKitSwitchNetwork } = appKitNetwork;
 
   const [chainId, setChainId] = useState(null);
   const [networkPhase, setNetworkPhase] = useState(NETWORK_PHASES.IDLE);
@@ -140,11 +137,22 @@ export function WalletProvider({ children }) {
 
   /**
    * Get the wallet onto the ACTIVE BOT Chain.
-   *   wrong chain   → wallet_switchEthereumChain
-   *   chain unknown → wallet_addEthereumChain, then switch
    *
-   * On rejection we set REJECTED and LEAVE THE SESSION ALIVE. The wallet is
-   * still connected; the user can retry. We never disconnect here.
+   * Uses AppKit's official switchNetwork() instead of raw
+   * wallet_switchEthereumChain / wallet_addEthereumChain calls. That matters:
+   *   - For injected wallets the wagmi adapter performs switch → (4902) → add
+   *     internally, exactly per the EIP-1193 flow.
+   *   - For WalletConnect wallets the chain is already part of the session
+   *     (we register it in createAppKit), so AppKit sends a proper session
+   *     switch request that mobile wallets actually handle — raw
+   *     wallet_addEthereumChain is often unsupported there, which is why the
+   *     old "ADD & SWITCH" button appeared to send nothing.
+   *   - AppKit's own chain state stays in sync.
+   *
+   * We always re-verify against the wallet (eth_chainId) rather than trusting
+   * AppKit's cached state.
+   *
+   * On failure we leave the session alive and show the manual network details.
    */
   const ensureNetwork = useCallback(async () => {
     const provider = providerRef.current;
@@ -166,49 +174,45 @@ export function WalletProvider({ children }) {
 
       setNetworkPhase(NETWORK_PHASES.SWITCHING);
       try {
-        await switchToActiveChain(provider);
+        // AppKit's hook swallows wallet errors; the timeout wrapper guarantees
+        // we never leave the UI stuck in "UPDATING NETWORK…".
+        await withTimeout(appKitSwitchNetwork(activeChain), 30000);
       } catch (switchError) {
-        const isUnknownChain =
-          Number(switchError?.code) === 4902 ||
-          /unrecognized chain|unsupported chain|chain not.*configured/i.test(
-            [switchError?.message, switchError?.data?.message].filter(Boolean).join(' ')
-          );
-
-        if (!isUnknownChain) throw switchError;
-
-        setNetworkPhase(NETWORK_PHASES.ADDING);
-        await addActiveChainToWallet(provider);
-        setNetworkPhase(NETWORK_PHASES.SWITCHING);
-        await switchToActiveChain(provider);
+        console.error('[RICIPT] switchNetwork failed:', switchError);
       }
 
-      // Verify the switch actually landed on our chain before declaring READY.
-      const finalId = await refreshChainId(provider);
-      if (Number(finalId) === activeNetwork.chainId) {
-        setNetworkPhase(NETWORK_PHASES.READY);
-        return { ok: true };
+      // AppKit's switchNetwork resolves after it updates its *internal* chain
+      // cache, which happens BEFORE the wallet's eth_chainId actually reflects
+      // the new chain (especially WalletConnect). Poll the provider for the real
+      // result instead of trusting a single immediate read.
+      const switched = await waitForChainId(provider, activeNetwork.chainId, 8000);
+      if (switched) {
+        const finalId = await refreshChainId(provider);
+        setChainId(finalId);
+        if (Number(finalId) === activeNetwork.chainId) {
+          setNetworkPhase(NETWORK_PHASES.READY);
+          return { ok: true };
+        }
       }
-      setNetworkPhase(NETWORK_PHASES.WRONG_NETWORK);
-      return { ok: false, reason: 'WRONG_NETWORK' };
+
+      // The wallet stayed on the wrong chain: the prompt was cancelled, the
+      // wallet cannot switch programmatically, or it needs the network added
+      // manually. Keep the session alive and tell the user exactly how.
+      setNetworkPhase(NETWORK_PHASES.REJECTED);
+      setNetworkError(
+        'Your wallet did not switch to BOT Chain. If a prompt appeared, approve it. ' +
+          'Otherwise add the network manually (details below), then tap the button again.'
+      );
+      return { ok: false, reason: 'NOT_SWITCHED' };
     } catch (error) {
       console.error('[RICIPT] ensureNetwork failed:', error);
-      const category = classifyEnsureError(error);
-      if (category === 'USER_REJECTED') {
-        // The wallet stays connected; the user can retry. Never disconnect.
-        setNetworkPhase(NETWORK_PHASES.REJECTED);
-        setNetworkError('Network change cancelled. Your wallet is still connected.');
-      } else {
-        // e.g. a WalletConnect wallet that does not support chain management.
-        setNetworkPhase(NETWORK_PHASES.ERROR);
-        setNetworkError(
-          'Your wallet could not switch networks automatically. Add BOT Chain manually, then try again.'
-        );
-      }
-      return { ok: false, reason: category };
+      setNetworkPhase(NETWORK_PHASES.ERROR);
+      setNetworkError('Could not read the network from your wallet. Add BOT Chain manually (details below), then try again.');
+      return { ok: false, reason: 'ERROR' };
     } finally {
       setIsEnsuring(false);
     }
-  }, [isConnected, refreshChainId]);
+  }, [isConnected, refreshChainId, appKitSwitchNetwork]);
 
   /**
    * Convenience guard for write operations: mint/transfer/status updates
@@ -288,19 +292,14 @@ export function WalletProvider({ children }) {
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
 }
 
-function classifyEnsureError(error) {
-  const code = Number(error?.code);
-  if (code === 4001) return 'USER_REJECTED';
-  const msg = [
-    error?.shortMessage,
-    error?.message,
-    error?.data?.message,
-    typeof error === 'string' ? error : null,
-  ]
-    .filter(Boolean)
-    .join(' ');
-  if (/user rejected|denied|rejected|cancelled|canceled/i.test(msg)) return 'USER_REJECTED';
-  return 'ERROR';
+function withTimeout(promise, ms) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('Network switch request timed out.')), ms);
+    promise.then(
+      (value) => { clearTimeout(timer); resolve(value); },
+      (error) => { clearTimeout(timer); reject(error); }
+    );
+  });
 }
 
 export function useWallet() {

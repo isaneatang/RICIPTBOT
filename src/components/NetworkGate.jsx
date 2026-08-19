@@ -8,6 +8,7 @@
  * a connection failure. Each phase gets its own message and a retry button;
  * the wallet session is never destroyed here.
  */
+import { useState } from 'react';
 import { useWallet } from '../hooks/useWallet.js';
 import { activeNetwork } from '../config/chains.js';
 import { NETWORK_PHASES } from '../context/WalletContext.jsx';
@@ -16,6 +17,24 @@ import { environment } from '../config/environment.js';
 export default function NetworkGate({ children, requireContract = true }) {
   const { isConnected, networkPhase, networkError, ensureNetwork, isEnsuring, connect } =
     useWallet();
+  const [copied, setCopied] = useState(false);
+
+  const copyNetworkDetails = async () => {
+    const details = [
+      `Network: ${activeNetwork.chainName}`,
+      `Chain ID: ${activeNetwork.chainId}`,
+      `Currency: ${activeNetwork.currency.symbol}`,
+      `RPC URL: ${activeNetwork.rpcUrl}`,
+      `Explorer: ${activeNetwork.explorerUrl}`,
+    ].join('\n');
+    try {
+      await navigator.clipboard.writeText(details);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
 
   // --- Not connected -------------------------------------------------------
   if (!isConnected) {
@@ -104,10 +123,22 @@ export default function NetworkGate({ children, requireContract = true }) {
             : 'SWITCH TO BOT CHAIN'}
       </button>
 
-      <p className="gate__text gate__text--muted">
-        Prefer to do it manually? Add chain ID {activeNetwork.chainId} ({activeNetwork.rpcUrl}) in
-        your wallet, then press the button above.
-      </p>
+      <div className="gate__manual">
+        <p className="gate__text gate__text--muted">
+          If your wallet won't switch automatically, add the network manually in your wallet, then
+          press the button above:
+        </p>
+        <pre className="gate__manual-details">
+{`Network : ${activeNetwork.chainName}
+Chain ID: ${activeNetwork.chainId}
+Currency: ${activeNetwork.currency.symbol}
+RPC URL : ${activeNetwork.rpcUrl}
+Explorer: ${activeNetwork.explorerUrl}`}
+        </pre>
+        <button type="button" className="btn btn--ghost btn--tiny" onClick={copyNetworkDetails}>
+          {copied ? 'COPIED ✓' : 'COPY NETWORK DETAILS'}
+        </button>
+      </div>
     </div>
   );
 }

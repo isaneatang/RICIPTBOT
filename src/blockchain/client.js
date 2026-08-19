@@ -64,6 +64,92 @@ export async function getWalletChainId(provider) {
 }
 
 /**
+ * Poll the wallet for its current chain id until it matches `expectedChainId`
+ * or `timeoutMs` elapses.
+ *
+ * Reown/AppKit `switchNetwork` resolves its promise as soon as AppKit's
+ * *internal* cache is updated — which is BEFORE the EIP-1193 provider's
+ * `eth_chainId` actually reflects the new chain (noticeable for injected
+ * wallets and very noticeable for WalletConnect, where the session update is
+ * async). A single immediate `eth_chainId` read therefore reads the OLD chain
+ * and falsely reports the switch failed.
+ *
+ * This waits the right way:
+ *   - resolves `true` the instant the provider reports the expected chain
+ *     (driven by either a `chainChanged` event or a polling interval, so it
+ *     works for providers that don't emit `chainChanged`),
+ *   - resolves `false` on timeout (caller decides the friendly UI state).
+ *
+ * The promise ALWAYS resolves (never rejects) so callers can't get stuck; the
+ * `withTimeout` wrapper in WalletContext still guards the overall request
+ * lifetime separately.
+ */
+export function waitForChainId(provider, expectedChainId, timeoutMs = 8000) {
+  return new Promise((resolve) => {
+    const target = Number(expectedChainId);
+    const deadline = Date.now() + timeoutMs;
+    let settled = false;
+
+    const finish = (result) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(result);
+    };
+
+    const check = async () => {
+      try {
+        const id = await getWalletChainId(provider);
+        if (Number(id) === target) {
+          finish(true);
+          return;
+        }
+      } catch {
+        // ignore — a transient read failure just means we keep polling
+      }
+      if (Date.now() >= deadline) {
+        finish(false);
+      }
+    };
+
+    let interval = null;
+    const onChainChanged = (chainIdHex) => {
+      try {
+        if (Number.parseInt(String(chainIdHex), 16) === target) {
+          finish(true);
+          return;
+        }
+      } catch {
+        // malformed event payload — fall back to polling
+      }
+      check();
+    };
+
+    const cleanup = () => {
+      if (interval) clearInterval(interval);
+      if (provider && typeof provider.removeListener === 'function') {
+        try {
+          provider.removeListener('chainChanged', onChainChanged);
+        } catch {
+          // provider doesn't support listeners (e.g. some WC bridges)
+        }
+      }
+    };
+
+    // First read immediately, then poll + listen.
+    void check();
+    interval = setInterval(check, 400);
+    if (provider && typeof provider.on === 'function') {
+      try {
+        provider.on('chainChanged', onChainChanged);
+      } catch {
+        // not all providers support EIP-1193 event listeners
+      }
+    }
+  });
+}
+
+/**
  * Ask the wallet to switch to the active BOT Chain.
  * Returns true on success. Throws on failure; errors with code 4902
  * (chain unknown to the wallet) are re-thrown so callers know to call
