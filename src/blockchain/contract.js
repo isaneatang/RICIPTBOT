@@ -72,12 +72,16 @@ export async function readPassport(tokenId) {
   try {
     const contract = getReadContract();
     const passport = await contract.read.getPassport([BigInt(tokenId)]);
+    // viem returns struct outputs as a named object (e.g. { dataHash,
+    // metadataURI, issuer, createdAt, status }) in the browser. We read by
+    // key with an array-index fallback so this stays correct across viem
+    // versions / bundlers.
     return {
-      dataHash: passport[0],
-      metadataURI: passport[1],
-      issuer: passport[2],
-      createdAt: Number(passport[3]),
-      status: Number(passport[4]),
+      dataHash: passport.dataHash !== undefined ? passport.dataHash : passport[0],
+      metadataURI: passport.metadataURI !== undefined ? passport.metadataURI : passport[1],
+      issuer: passport.issuer !== undefined ? passport.issuer : passport[2],
+      createdAt: Number(passport.createdAt !== undefined ? passport.createdAt : passport[3]),
+      status: Number(passport.status !== undefined ? passport.status : passport[4]),
     };
   } catch (error) {
     // "token does not exist" (custom revert) OR an OZ NonexistentToken error

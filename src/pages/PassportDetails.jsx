@@ -83,7 +83,7 @@ export default function PassportDetails() {
   }, [tokenId, load, reset]);
 
   const isOwner = isConnected && owner && address && owner.toLowerCase() === address.toLowerCase();
-  const isIssuer = isConnected && passport && address && passport.issuer.toLowerCase() === address.toLowerCase();
+  const isIssuer = isConnected && passport && address && passport.issuer && passport.issuer.toLowerCase() === address.toLowerCase();
   const canUpdateStatus = isOwner || isIssuer;
 
   const handleStatusConfirm = async () => {
