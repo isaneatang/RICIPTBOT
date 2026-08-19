@@ -335,6 +335,20 @@ stays visible during confirmations.
 Express, no database. Never put `DEPLOYER_PRIVATE_KEY` (or any secret) into
 Vercel for the frontend — it is not a `VITE_` var and the app does not use it.
 
+> Auto-deploy tip: Vercel's Git integration requires a commit identity that
+> GitHub can link to your account. Use your GitHub noreply email
+> (`<id>+<username>@users.noreply.github.com`) or a real email on the account —
+> otherwise deployments are blocked with *"no git user associated with the
+> commit"*.
+
+### Error handling
+
+`ErrorBoundary` (`src/components/ErrorBoundary.jsx`) wraps the app. If a page
+throws during render you get a "SOMETHING WENT WRONG" screen with the error
+message and a reload button — never a blank page. The last error is also
+mirrored to `localStorage["ricipt:last-error"]` so it can be reported and
+diagnosed.
+
 ---
 
 ## Security model
