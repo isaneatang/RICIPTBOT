@@ -1,0 +1,103 @@
+==================================================
+ RICIPT — NEXT STEPS (do these in order)
+==================================================
+
+STEP 0 · INSTALL
+----------------
+cd RICIPT
+npm install
+
+STEP 1 · ENV CONFIGURATION
+--------------------------
+cp .env.example .env
+
+Edit .env and set:
+
+  VITE_REOWN_PROJECT_ID=      ← create a free project at https://dashboard.reown.com
+                                copy the Project ID here (it's public)
+
+  VITE_TESTNET_CONTRACT_ADDRESS=  ← leave as YOUR_TESTNET_CONTRACT_ADDRESS for now,
+                                    you'll fill it after STEP 4
+  VITE_MAINNET_CONTRACT_ADDRESS=  ← same, for later mainnet work
+
+  DEPLOYER_PRIVATE_KEY=       ← SECRET. The deployer wallet's private key.
+                                NEVER commit this. Never a VITE_ var.
+
+STEP 2 · CONFIRM THE ACTIVE NETWORK
+-----------------------------------
+Open src/config/chains.js
+  export const ACTIVE_NETWORK = 'TN';   // TN = testnet (968) | MN = mainnet (677)
+Keep "TN" for testing.
+
+STEP 3 · GET TEST BOT
+---------------------
+1. Fund the wallet that owns DEPLOYER_PRIVATE_KEY:
+   faucet: https://faucet.botchain.ai/basic
+2. You need a second wallet for the transfer demo (step 10). Fund it too.
+
+STEP 4 · DEPLOY THE CONTRACT
+----------------------------
+npm run compile            # compile + regenerate src/blockchain/artifact.js
+npm run deploy:testnet     # deploys DevicePassport to BOT Chain Testnet
+
+The script prints the contract address + tx hash + explorer links.
+
+STEP 5 · WIRE UP THE CONTRACT ADDRESS
+-------------------------------------
+In .env, set:
+  VITE_TESTNET_CONTRACT_ADDRESS=0x<the printed address>
+Restart the dev server.
+
+STEP 6 · RUN THE APP
+--------------------
+npm run dev                # http://localhost:5173
+
+STEP 7 · TEST ORDER (MVP definition of done)
+--------------------------------------------
+1  Wallet      → / → CONNECT WALLET → pick a wallet (extension or QR).
+2  Network     → approve "add & switch to BOT Chain" (968). Nav pill turns green.
+                  Try REJECTING once → you stay connected, get a retry button.
+3  Create      → /create → fill the form. Date: use TEXT or PICKER toggle.
+4  Mint        → REVIEW → CONFIRM & MINT → approve in wallet → wait CONFIRMED.
+5  Passes      → /passes → your passport is listed (loaded from chain).
+6  Details     → /passport/<id> → full record + QR code.
+7  Verify      → open /verify?tokenId=<id> in a NEW tab (or scan the QR)
+                  with the wallet DISCONNECTED — it must still verify.
+8  Transfer    → /passport/<id> → TRANSFER → second wallet's address → confirm.
+9  Second wallet → connect wallet #2 → /passes → passport now owned by #2.
+10 Re-verify   → /verify?tokenId=<id> still works with no wallet.
+
+STEP 8 · MOBILE TESTING
+-----------------------
+- Android Chrome (no wallet): open the URL → AppKit QR → scan with phone wallet.
+- Wallet DApp browser (e.g. MetaMask mobile): open URL inside the wallet browser;
+  the injected wallet appears in the picker.
+- Deep links: the AppKit picker handles them automatically.
+- Check on a 360px-wide screen: no horizontal scroll, date input works, modals fit.
+
+STEP 9 · DEPLOY TO VERCEL
+-------------------------
+1. Push to GitHub.
+2. Vercel → Import repo (framework preset: Vite; build `npm run build`).
+3. Add env vars in Vercel (NOT .env, use the Vercel UI):
+     VITE_REOWN_PROJECT_ID
+     VITE_TESTNET_CONTRACT_ADDRESS
+     VITE_MAINNET_CONTRACT_ADDRESS
+4. Deploy. vercel.json already rewrites all routes to / so /create,
+   /passes, /passport/:id and /verify work on hard refresh.
+
+STEP 10 · GO MAINNET (LATER)
+----------------------------
+1. In src/config/chains.js set  ACTIVE_NETWORK = 'MN'
+2. Deploy: npm run deploy:mainnet   (fund deployer with real BOT first)
+3. Set VITE_MAINNET_CONTRACT_ADDRESS and redeploy.
+
+DEBUGGING QUICK REFERENCE
+-------------------------
+Symptom                          → Where to look
+App boots but can't connect      → .env: VITE_REOWN_PROJECT_ID
+"CONTRACT NOT CONFIGURED"        → .env contract address; restart dev server
+Wrong network messages           → src/config/chains.js ACTIVE_NETWORK
+Wallet stuck "CHECKING"          → devtools console; Reown session may need reset
+Mint fails "reverted"            → is the wallet funded? (faucet.botchain.ai/basic)
+Chain 968/677 hard-coded anywhere→ that's a bug; everything lives in networks.*.js

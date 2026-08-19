@@ -1,0 +1,1915 @@
+================================================================================
+RICIPT — BOT CHAIN RWA DEVICE PASSPORT MVP
+COMPLETE REACT REBUILD SPECIFICATION
+================================================================================
+
+You are a senior Web3 full-stack engineer helping me build a hackathon MVP.
+
+I am building an RWA application called:
+
+RICIPT
+
+RICIPT is a blockchain-backed device provenance/passport application for the
+BOT Chain Builder Challenge.
+
+The core concept:
+
+A physical device is purchased.
+
+The buyer enters the device and purchase information into RICIPT.
+
+RICIPT creates a blockchain-backed ERC-721 "Device Passport".
+
+The passport represents a verifiable purchase/provenance record associated
+with that physical device.
+
+If the physical device is later sold, the Device Passport can be transferred
+to the new owner's wallet.
+
+The MVP must be:
+
+- functional
+- clean
+- easy to demonstrate
+- easy to debug
+- mobile-wallet friendly
+- compatible with BOT Chain testnet
+- architected so mainnet can be activated later
+- simple enough to finish and test quickly
+
+Do NOT turn this into an unnecessarily complicated enterprise application.
+
+Do NOT build a backend.
+
+Do NOT build a database.
+
+Do NOT implement Gemini/OCR yet.
+
+Do NOT implement a marketplace.
+
+Do NOT implement payments.
+
+Do NOT implement DAO/governance.
+
+Do NOT implement unnecessary infrastructure.
+
+The goal is a real working hackathon MVP.
+
+================================================================================
+1. TECHNOLOGY STACK
+================================================================================
+
+Use:
+
+Frontend:
+- React
+- Vite
+- Modern JavaScript
+- TypeScript is allowed ONLY where it provides a genuine benefit
+- Prefer JavaScript for straightforward UI/business logic
+- Do not convert the entire project to TypeScript merely for the sake of it
+
+Blockchain:
+- Solidity
+- OpenZeppelin
+- ERC-721
+- viem OR ethers where appropriate
+
+Wallet:
+- Reown AppKit
+- WagmiAdapter if appropriate
+- WalletConnect-compatible EVM wallets
+- Injected wallets
+- Mobile wallet deep links / QR connections
+
+IMPORTANT:
+
+Use the same general Reown architecture that is proven to work reliably:
+
+RICIPT
+   |
+   v
+Reown AppKit
+   |
+   v
+Wagmi / EIP-1193 provider
+   |
+   v
+viem
+   |
+   v
+BOT Chain
+
+Do NOT hand-roll WalletConnect.
+
+Do NOT use @walletconnect/ethereum-provider directly unless Reown's
+current architecture genuinely requires it.
+
+Do NOT make MetaMask the primary wallet.
+
+Do NOT assume window.ethereum is always available.
+
+Normal Chrome without a wallet extension must still be able to open the
+Reown wallet picker and connect through QR/deep-link capable wallets.
+
+================================================================================
+2. IMPORTANT — USE CURRENT REOWN ARCHITECTURE
+================================================================================
+
+Before implementing Reown integration, verify the current compatible API
+for the installed package versions.
+
+Do not blindly copy old Reown/AppKit examples.
+
+Use the current compatible architecture for:
+
+- createAppKit
+- WagmiAdapter
+- WagmiProvider
+- QueryClientProvider
+- useAppKit
+- useAppKitAccount
+- useAppKitNetwork
+- useAppKitProvider
+
+or their current equivalents if the API has changed.
+
+The important architectural principle is:
+
+Reown owns wallet/session/connection infrastructure.
+
+RICIPT consumes the resulting EIP-1193 provider.
+
+Blockchain interaction is handled through viem/wagmi.
+
+Do not create competing wallet connection systems.
+
+================================================================================
+3. PROJECT NAME
+================================================================================
+
+The application name is:
+
+RICIPT
+
+Do not call the application DevicePassport in the UI.
+
+"Device Passport" is the product/concept.
+
+The branding should prominently use:
+
+RICIPT
+
+The UI should feel like an actual product rather than a generic Web3 template.
+
+================================================================================
+4. VISUAL DESIGN — IMPORTANT
+================================================================================
+
+I want an arcade-inspired interface.
+
+Do NOT make it look like:
+
+- a generic SaaS dashboard
+- a generic AI dashboard
+- a corporate banking application
+- a default Web3 template
+
+Design direction:
+
+- arcade-inspired
+- sharp borders
+- strong typography
+- angular/sharp UI elements
+- high contrast
+- clean dark interface
+- bold buttons
+- crisp cards
+- subtle arcade/game-inspired details
+- smooth transitions
+- responsive layout
+- polished animations
+- excellent spacing
+
+The interface should feel:
+
+TECHNICAL + ARCADE + WEB3 + RWA
+
+Avoid excessive gradients.
+
+Avoid excessive glassmorphism.
+
+Avoid rounded-everything UI.
+
+Use rounded corners sparingly.
+
+Prefer sharp or slightly chamfered visual elements.
+
+Typography should be strong and distinctive while remaining readable.
+
+Animations should be smooth and purposeful.
+
+Do NOT add animations everywhere just because you can.
+
+Performance matters.
+
+================================================================================
+5. FOOTER
+================================================================================
+
+The footer must contain ONLY:
+
+EQUIXOTE
+
+Do not add:
+
+- social links
+- copyright paragraphs
+- documentation links
+- GitHub links
+- "Powered by..."
+- unnecessary footer navigation
+
+The only footer text should be:
+
+EQUIXOTE
+
+================================================================================
+6. CORE ARCHITECTURE
+================================================================================
+
+Use a clean React architecture.
+
+Suggested structure:
+
+ricipt/
+│
+├── public/
+│   └── assets/
+│
+├── src/
+│   ├── components/
+│   │   ├── Navbar.jsx
+│   │   ├── WalletButton.jsx
+│   │   ├── WalletModal.jsx
+│   │   ├── NetworkGate.jsx
+│   │   ├── PassportCard.jsx
+│   │   ├── PassportPreview.jsx
+│   │   ├── TransactionStatus.jsx
+│   │   ├── ConfirmModal.jsx
+│   │   ├── TransferModal.jsx
+│   │   └── QRCodeDisplay.jsx
+│   │
+│   ├── pages/
+│   │   ├── Home.jsx
+│   │   ├── CreatePassport.jsx
+│   │   ├── MyPassports.jsx
+│   │   ├── PassportDetails.jsx
+│   │   └── VerifyPassport.jsx
+│   │
+│   ├── blockchain/
+│   │   ├── client.js
+│   │   ├── contract.js
+│   │   └── artifact.js
+│   │
+│   ├── config/
+│   │   ├── environment.js
+│   │   ├── networks.testnet.js
+│   │   ├── networks.mainnet.js
+│   │   └── chains.js
+│   │
+│   ├── context/
+│   │   └── WalletContext.jsx
+│   │
+│   ├── hooks/
+│   │   ├── useWallet.js
+│   │   ├── usePassport.js
+│   │   └── useNetwork.js
+│   │
+│   ├── utils/
+│   │   ├── hashing.js
+│   │   ├── validation.js
+│   │   ├── formatting.js
+│   │   ├── errors.js
+│   │   ├── storage.js
+│   │   └── qr.js
+│   │
+│   ├── styles/
+│   │   ├── globals.css
+│   │   ├── components.css
+│   │   └── pages.css
+│   │
+│   ├── App.jsx
+│   └── main.jsx
+│
+├── contracts/
+│   └── DevicePassport.sol
+│
+├── scripts/
+│   └── compile-contract.js
+│
+├── deploy/
+│   └── deploy.js
+│
+├── index.html
+├── package.json
+├── vite.config.js
+├── .env.example
+├── .gitignore
+├── vercel.json
+└── README.md
+
+You may modify this structure if the chosen implementation genuinely requires
+it.
+
+Do not create files simply for the sake of creating files.
+
+Every file must have a clear responsibility.
+
+================================================================================
+7. EXPLAIN EVERYTHING
+================================================================================
+
+This is extremely important.
+
+I want the generated project to be easy for me to debug.
+
+For every important file:
+
+Explain at the top of the file what the file is responsible for.
+
+For important functions:
+
+Add comments explaining:
+
+- what the function does
+- why it exists
+- what it expects
+- what it returns
+- important edge cases
+
+Comments should explain intent, not simply repeat the code.
+
+Example:
+
+// We deliberately keep this network decision in one place.
+// Otherwise six months from now somebody will change chain 968 in one file
+// and leave another file happily talking to mainnet. Future-us does not deserve
+// that kind of betrayal.
+
+Sarcastic/joke comments are welcome when they improve readability.
+
+Do not fill every line with jokes.
+
+Keep the code professional.
+
+================================================================================
+8. NETWORK ARCHITECTURE — VERY IMPORTANT
+================================================================================
+
+I want BOTH:
+
+BOT Chain Testnet
+AND
+BOT Chain Mainnet
+
+supported by the architecture.
+
+However, I want ONLY ONE ACTIVE NETWORK at a time.
+
+Create two separate network configuration files:
+
+src/config/networks.testnet.js
+
+src/config/networks.mainnet.js
+
+Then create:
+
+src/config/chains.js
+
+with a simple switch such as:
+
+const ACTIVE_NETWORK = "TN";
+
+Valid values:
+
+"TN" = testnet
+
+"MN" = mainnet
+
+The rest of the application must read the active network from this central
+configuration.
+
+Example concept:
+
+ACTIVE_NETWORK = "TN"
+
+means:
+
+BOT Chain Testnet is active.
+
+Changing:
+
+ACTIVE_NETWORK = "MN"
+
+must activate:
+
+BOT Chain Mainnet.
+
+Do NOT scatter chain IDs and RPC URLs throughout the application.
+
+Do NOT hard-code chain 968 in random components.
+
+Do NOT hard-code mainnet values in random components.
+
+The network configuration should expose:
+
+- chain ID
+- chain name
+- RPC URL
+- native currency
+- explorer URL
+- block explorer information
+- network key
+- contract address placeholder/configuration
+
+IMPORTANT:
+
+Before generating the actual BOT Chain network values, verify the current
+official BOT Chain developer documentation.
+
+DO NOT INVENT:
+
+- chain IDs
+- RPC URLs
+- explorer URLs
+- native currency values
+
+If official values cannot be verified, leave clearly marked placeholders and
+tell me exactly where they must be entered.
+
+================================================================================
+
+================================================================================
+10. WALLET CONNECTION ARCHITECTURE
+================================================================================
+
+Use Reown AppKit as the ONLY wallet connection layer.
+
+The wallet system must support:
+
+- browser wallet extensions
+- mobile wallet browsers
+- WalletConnect QR
+- WalletConnect deep links
+- normal Chrome without an extension
+- compatible EVM wallets
+
+The application must NOT assume:
+
+window.ethereum exists.
+
+The user experience should be:
+
+CONNECT WALLET
+      ↓
+Reown wallet picker
+      ↓
+User selects wallet
+      ↓
+Connection/session established
+      ↓
+Wallet/account state enters React context
+      ↓
+Network validation
+      ↓
+Switch/add network if necessary
+      ↓
+Application ready
+
+Do NOT mark the wallet as connected merely because a deep link opened.
+
+Only update connected state after the actual wallet session/account is
+available.
+
+================================================================================
+11. NETWORK ADD/SWITCH BEHAVIOR
+================================================================================
+
+This is very important because some wallets do not have BOT Chain configured.
+
+If the connected wallet is on the wrong network:
+
+FIRST:
+
+Attempt:
+
+wallet_switchEthereumChain
+
+If the wallet returns the equivalent of:
+
+4902 = unknown chain
+
+THEN attempt:
+
+wallet_addEthereumChain
+
+using the active network configuration.
+
+After adding:
+
+attempt wallet_switchEthereumChain again.
+
+The user should see a clear explanation.
+
+Example:
+
+"BOT Chain isn't configured in this wallet. Add BOT Chain to continue."
+
+Then the wallet should receive the network-add approval request.
+
+After approval:
+
+switch to BOT Chain.
+
+IMPORTANT:
+
+Do NOT make failure to switch/add the network look like failure to connect
+the wallet.
+
+These are separate states:
+
+CONNECTED
+WRONG NETWORK
+ADDING NETWORK
+SWITCHING NETWORK
+READY
+REJECTED
+
+If the user rejects network addition/switching:
+
+Keep the wallet session alive.
+
+Do NOT disconnect the wallet.
+
+Show:
+
+"Network change cancelled. Your wallet is still connected."
+
+This distinction is critical.
+
+================================================================================
+12. WALLETCONNECT / REOWN ERROR HANDLING
+================================================================================
+
+Avoid the previous class of errors where:
+
+- OKX reports "Network Error"
+- Bitget reports "Transaction Request Failed"
+- Android Chrome opens a wallet but never establishes a session
+- UI gets stuck showing disconnected
+
+Do not claim these can be eliminated completely because wallet applications
+control their own behavior.
+
+However, architect the application so:
+
+1. Reown owns connection sessions.
+2. The app does not manually compete with Reown.
+3. The active EIP-1193 provider comes from Reown/Wagmi.
+4. Chain configuration is consistent.
+5. Transactions are sent through the active wallet provider.
+6. Wrong-network handling occurs AFTER connection.
+7. Session state comes from Reown rather than manually guessing.
+8. Wallet disconnect/session expiry updates the UI.
+9. No stale wallet state remains after a dead session.
+
+If a wallet rejects a transaction:
+
+"Transaction cancelled or rejected in your wallet."
+
+If a wallet cannot switch:
+
+"Your wallet could not switch networks automatically. Add BOT Chain
+manually, then try again."
+
+Do not display raw provider stack traces to users.
+
+Console logs may contain useful debugging information.
+
+================================================================================
+13. DATE INPUT — MOBILE WALLET BROWSER COMPATIBILITY
+================================================================================
+
+The application contains a purchase date field.
+
+DO NOT blindly rely on:
+
+<input type="date">
+
+as the only interface.
+
+Some mobile wallet browsers and embedded WebViews render native date controls
+poorly.
+
+The date input must be designed with mobile compatibility in mind.
+
+Use a robust approach such as:
+
+- text input with YYYY-MM-DD validation
+OR
+- a lightweight accessible date picker
+OR
+- a hybrid input that works even when native date controls fail
+
+Do NOT rely on a complicated third-party date picker unless necessary.
+
+The field must remain usable inside:
+
+- normal Chrome
+- mobile Chrome
+- wallet DApp browsers
+- WalletConnect-related browser contexts
+
+Similarly, avoid unnecessarily fragile native dropdown behavior.
+
+For select fields such as:
+
+Currency
+Device Type
+Warranty
+
+ensure the UI remains usable on mobile wallet browsers.
+
+If a custom dropdown is used, make sure:
+
+- keyboard navigation works
+- touch works
+- no overflow clipping occurs
+- it does not depend on hover
+- it closes correctly
+- it does not get trapped behind modals
+
+Prefer native controls where they are reliable.
+
+================================================================================
+14. CORE PRODUCT FLOW
+================================================================================
+
+The application must support:
+
+HOME
+ ↓
+CONNECT WALLET
+ ↓
+CREATE PASSPORT
+ ↓
+ENTER DEVICE INFORMATION
+ ↓
+REVIEW
+ ↓
+CONFIRM
+ ↓
+WALLET TRANSACTION
+ ↓
+MINT
+ ↓
+PASSPORT CREATED
+ ↓
+MY PASSPORTS
+ ↓
+VIEW PASSPORT
+ ↓
+VERIFY
+ ↓
+TRANSFER
+ ↓
+NEW OWNER
+
+================================================================================
+15. LANDING PAGE
+================================================================================
+
+Brand:
+
+RICIPT
+
+Primary message:
+
+"Turn a physical device purchase into a verifiable blockchain passport."
+
+Buttons:
+
+[CREATE PASSPORT]
+
+[MY PASSPORTS]
+
+Wallet:
+
+[CONNECT WALLET]
+
+The design should immediately communicate:
+
+Physical device
++
+Receipt
++
+Blockchain
++
+Ownership
+
+================================================================================
+16. CREATE PASSPORT
+================================================================================
+
+CreatePassport.jsx should collect:
+
+- Device type
+- Manufacturer
+- Model
+- Serial number
+- IMEI
+- Purchase date
+- Retailer/store
+- Receipt number
+- Price
+- Currency
+- Warranty
+- Optional receipt image
+
+IMPORTANT PRIVACY DESIGN:
+
+Do not unnecessarily expose sensitive information on-chain.
+
+In particular consider:
+
+- IMEI
+- serial number
+- receipt number
+
+The MVP must distinguish between:
+
+PUBLIC BLOCKCHAIN DATA
+
+and
+
+PRIVATE/LOCAL INPUT DATA.
+
+The blockchain should primarily store:
+
+- passport metadata required for verification
+- cryptographic data hash
+- issuer
+- creation timestamp
+- ownership
+
+Sensitive raw data should NOT automatically be written to public blockchain
+storage merely because we have it.
+
+If a field needs to be displayed to the current owner, explain how it is
+stored in the MVP.
+
+The design must remain honest about what is actually private.
+
+Do NOT falsely claim that localStorage is secure storage.
+
+================================================================================
+17. RECEIPT IMAGE
+================================================================================
+
+The user may upload a receipt image.
+
+For this MVP:
+
+- it is optional
+- the app must work without it
+- it does not need permanent decentralized storage
+- do not add IPFS just for the sake of adding IPFS
+- do not upload it to an unknown server
+- do not send it to Gemini
+
+The image can be used for local preview.
+
+If image data contributes to the passport record, clearly explain the
+implications.
+
+================================================================================
+18. REVIEW STEP
+================================================================================
+
+Never immediately mint when the form is submitted.
+
+Flow:
+
+[REVIEW PASSPORT]
+
+↓
+
+Show a clean passport preview.
+
+Example:
+
+RICIPT DEVICE PASSPORT
+
+Samsung Galaxy S24
+
+Manufacturer:
+Samsung
+
+Model:
+Galaxy S24
+
+Purchase Date:
+2026-08-15
+
+Retailer:
+Example Store
+
+...
+
+Buttons:
+
+[EDIT]
+
+[CONFIRM & MINT]
+
+The user must explicitly confirm.
+
+================================================================================
+19. DATA HASH
+================================================================================
+
+Create a deterministic canonical representation of the relevant passport data.
+
+Example:
+
+canonical JSON:
+
+{
+  deviceType,
+  manufacturer,
+  model,
+  purchaseDate,
+  retailer,
+  price,
+  currency,
+  warranty,
+  issuer
+}
+
+Then calculate:
+
+keccak256(canonical representation)
+
+Store the resulting hash on-chain.
+
+The exact canonicalization method must be deterministic.
+
+The README must explain:
+
+The hash proves that a specific dataset was used to create the passport.
+
+It does NOT independently prove:
+
+- the purchase was legitimate
+- the retailer was legitimate
+- the device actually exists
+- the person is legally the owner
+- the data entered by the user is truthful
+
+Do not oversell the technology.
+
+================================================================================
+20. SMART CONTRACT
+================================================================================
+
+Create:
+
+contracts/DevicePassport.sol
+
+Use:
+
+- Solidity ^0.8.24 or a compatible current version
+- OpenZeppelin ERC721
+- Ownable or appropriate access control
+- ERC721Burnable only if genuinely useful
+
+The contract should support:
+
+1. Mint passport
+2. Read passport
+3. Read owner
+4. Transfer passport
+5. Update authorized status
+6. Emit relevant events
+
+Possible statuses:
+
+VERIFIED
+LOST
+STOLEN
+DISPUTED
+RECOVERED
+
+Use an enum where appropriate.
+
+The contract must not become unnecessarily complex.
+
+================================================================================
+21. OWNERSHIP MODEL
+================================================================================
+
+IMPORTANT:
+
+Do NOT claim:
+
+NFT ownership = legal ownership of physical device.
+
+The NFT represents a blockchain-backed passport/provenance record.
+
+The initial mint goes to the connected wallet.
+
+The issuer should be recorded.
+
+For the MVP:
+
+connected user = issuer/creator.
+
+Later:
+
+retailer/manufacturer verification can be added.
+
+================================================================================
+22. TRANSFER
+================================================================================
+
+Use standard ERC-721 transfer functionality.
+
+When a device is resold:
+
+Owner A
+ ↓
+transfer
+ ↓
+Owner B
+
+The blockchain then records the new wallet as the current NFT owner.
+
+Do NOT create:
+
+- marketplace
+- escrow
+- payment
+- custom trading system
+
+================================================================================
+23. STATUS MANAGEMENT
+================================================================================
+
+Provide a simple authorized mechanism for status updates.
+
+For MVP:
+
+the issuer/authorized owner can update status.
+
+Keep authorization simple.
+
+Do not build DAO/governance.
+
+================================================================================
+24. MY PASSPORTS
+================================================================================
+
+MyPassports.jsx should load Device Passports belonging to the connected wallet.
+
+IMPORTANT:
+
+Do not assume a wallet has only one passport.
+
+Support multiple passports.
+
+The UI should display cards.
+
+Example:
+
+RICIPT DEVICE PASSPORT #12
+
+Samsung Galaxy S24
+
+STATUS
+VERIFIED
+
+OWNER
+0x1234...5678
+
+[VIEW]
+
+[TRANSFER]
+
+Do not rely solely on localStorage to determine ownership.
+
+Blockchain ownership is authoritative.
+
+If no indexer is used, clearly document the MVP discovery strategy.
+
+A future indexer can replace it.
+
+================================================================================
+25. PASSPORT DETAILS
+================================================================================
+
+PassportDetails.jsx should display:
+
+- token ID
+- device information appropriate for display
+- status
+- issuer
+- current owner
+- creation time
+- data hash
+- contract address
+- transaction hash if available
+- explorer link where available
+
+Actions:
+
+[TRANSFER]
+
+[VERIFY]
+
+QR CODE
+
+The QR should point to:
+
+verify.html equivalent React route:
+
+/verify?tokenId=123
+
+Do not put sensitive data inside the QR.
+
+================================================================================
+26. PUBLIC VERIFICATION
+================================================================================
+
+VerifyPassport.jsx must work WITHOUT wallet connection.
+
+Example:
+
+/verify?tokenId=123
+
+It should query the active blockchain network and display:
+
+RICIPT DEVICE PASSPORT
+
+✓ PASSPORT EXISTS
+
+Token ID:
+123
+
+Device:
+Samsung Galaxy S24
+
+Status:
+VERIFIED
+
+Issuer:
+0x1234...5678
+
+Current Owner:
+0xabcd...efgh
+
+Contract:
+0x....
+
+Data Hash:
+0x....
+
+Do not expose unnecessary private information.
+
+The page must clearly distinguish:
+
+"Passport exists on-chain"
+
+from:
+
+"All claims about this device are independently verified."
+
+Those are not the same thing.
+
+================================================================================
+27. WALLET CONTEXT
+================================================================================
+
+Create:
+
+src/context/WalletContext.jsx
+
+It should centralize:
+
+- address
+- connection status
+- wallet provider
+- chain ID
+- active network
+- isOnActiveNetwork
+- connect
+- disconnect
+- switch network
+- add network
+- error state
+
+Pages should NOT directly manipulate Reown internals.
+
+Pages should consume a clean:
+
+useWallet()
+
+interface.
+
+================================================================================
+28. BLOCKCHAIN CLIENT
+================================================================================
+
+Separate:
+
+READ CLIENT
+
+and
+
+WALLET/SIGNER CLIENT.
+
+Reads should work without a wallet.
+
+Writes require wallet approval.
+
+Examples:
+
+READ:
+- getPassport
+- ownerOf
+- balanceOf
+- token data
+- status
+
+WRITE:
+- mint
+- transfer
+- update status
+
+Never assume a wallet exists for public verification.
+
+================================================================================
+29. TRANSACTION STATE MACHINE
+================================================================================
+
+Every important write operation should clearly communicate:
+
+PREPARING
+
+↓
+
+AWAITING WALLET
+
+↓
+
+SUBMITTED
+
+↓
+
+CONFIRMING
+
+↓
+
+CONFIRMED
+
+or:
+
+FAILED
+
+The UI must never appear frozen while waiting for blockchain confirmation.
+
+Buttons should be disabled during critical transaction states to prevent
+duplicate submissions.
+
+================================================================================
+30. ERROR HANDLING
+================================================================================
+
+Create a centralized error mapping system.
+
+Handle:
+
+- wallet rejected connection
+- wallet rejected transaction
+- wrong network
+- network unknown
+- add network rejected
+- switch network rejected
+- insufficient funds
+- contract revert
+- invalid address
+- user rejected transaction
+- RPC failure
+- WalletConnect/Reown session failure
+- session expired
+
+Friendly messages.
+
+Example:
+
+"Your wallet is connected, but BOT Chain isn't active."
+
+"BOT Chain isn't configured in this wallet. Add it to continue."
+
+"Transaction cancelled in your wallet."
+
+"Not enough BOT to complete this transaction."
+
+"Could not read the passport from the blockchain."
+
+Never expose raw technical errors in the UI.
+
+================================================================================
+31. CONTRACT DEPLOYMENT
+================================================================================
+
+Use Hardhat if it makes the deployment process simpler.
+
+The deployment process must:
+
+1. Compile DevicePassport.sol
+2. Deploy it
+3. Print:
+   - contract address
+   - transaction hash
+   - active network
+4. Explain how to inspect the deployment
+5. Explain where the contract address goes in the frontend configuration
+
+The deployer private key MUST come from an environment variable.
+
+Example:
+
+DEPLOYER_PRIVATE_KEY=
+
+NEVER:
+
+const PRIVATE_KEY = "..."
+
+Do not commit secrets.
+
+================================================================================
+32. CONTRACT ADDRESS CONFIGURATION
+================================================================================
+
+Support separate contract addresses for:
+
+TESTNET
+
+and
+
+MAINNET
+
+Example configuration concept:
+
+testnet:
+  contractAddress: ""
+
+mainnet:
+  contractAddress: ""
+
+The active TN/MN switch determines which contract address is used.
+
+If the contract has not yet been deployed:
+
+use:
+
+YOUR_TESTNET_CONTRACT_ADDRESS
+
+or an empty configuration state.
+
+Do NOT invent an address.
+
+================================================================================
+33. ENVIRONMENT VARIABLES
+================================================================================
+
+Use:
+
+.env
+
+for local configuration.
+
+Create:
+
+.env.example
+
+Possible variables:
+
+VITE_REOWN_PROJECT_ID=
+
+VITE_TESTNET_CONTRACT_ADDRESS=
+
+VITE_MAINNET_CONTRACT_ADDRESS=
+
+DEPLOYER_PRIVATE_KEY=
+
+IMPORTANT:
+
+DEPLOYER_PRIVATE_KEY must NEVER be exposed to Vite/client code.
+
+Vite environment variables beginning with VITE_ are public.
+
+The deployment private key is NOT a VITE_ variable.
+
+If frontend and deployment environments require different env files, explain
+this clearly.
+
+.gitignore must include:
+
+.env
+.env.*
+!.env.example
+
+or an equivalent safe pattern that does not accidentally commit secrets.
+
+================================================================================
+34. NETWORK SWITCH + WALLETCONNECT SAFETY
+================================================================================
+
+This is a high-priority requirement.
+
+Implement:
+
+connect wallet
+
+↓
+
+connection succeeds
+
+↓
+
+check chain
+
+↓
+
+if correct:
+READY
+
+if wrong:
+WRONG NETWORK
+
+↓
+
+request switch
+
+if unknown:
+ADD NETWORK
+
+↓
+
+SWITCH
+
+↓
+
+READY
+
+If add/switch fails:
+
+DO NOT:
+
+- disconnect wallet
+- reset account
+- destroy Reown session
+- claim connection failed
+
+Instead:
+
+wallet remains connected.
+
+The user can retry network setup.
+
+This must work with both:
+
+Injected wallet
+AND
+WalletConnect/Reown wallet.
+
+Where WalletConnect wallets do not support a particular chain-management
+method, provide a graceful fallback explaining what the user must do.
+
+Do not break the Reown session.
+
+================================================================================
+35. MOBILE UX
+================================================================================
+
+Assume the application will be used inside:
+
+- Android Chrome
+- wallet DApp browsers
+- WalletConnect-connected sessions
+- small screens
+- touch interfaces
+
+Requirements:
+
+- large enough touch targets
+- no hover-only controls
+- no tiny buttons
+- responsive forms
+- modals fit small screens
+- no horizontal overflow
+- date controls work
+- dropdowns work
+- wallet connection UI works
+- transaction state remains visible
+
+Test for:
+
+360px-wide screens.
+
+================================================================================
+36. QR CODE
+================================================================================
+
+Use a reliable QR library.
+
+QR target:
+
+/verify?tokenId=TOKEN_ID
+
+Do not encode:
+
+- IMEI
+- serial number
+- receipt image
+- private data
+
+================================================================================
+37. STORAGE
+================================================================================
+
+No backend.
+
+No database.
+
+If localStorage is used:
+
+ONLY use it for UI convenience such as:
+
+- recently viewed passports
+- locally known contract collections
+- draft form data if useful
+
+Never claim localStorage is secure storage.
+
+Blockchain state is authoritative.
+
+================================================================================
+38. AI
+================================================================================
+
+DO NOT implement Gemini.
+
+DO NOT implement OCR.
+
+However, architect CreatePassport so future AI can be added cleanly.
+
+Future:
+
+Receipt image
+ ↓
+Gemini OCR
+ ↓
+Form populated
+ ↓
+User reviews
+ ↓
+User confirms
+ ↓
+Mint
+
+Do not build this now.
+
+================================================================================
+39. README
+================================================================================
+
+Create a professional README explaining:
+
+- What RICIPT is
+- What a Device Passport means
+- Architecture
+- React structure
+- Reown architecture
+- BOT Chain configuration
+- TN/MN network switch
+- Environment variables
+- Wallet setup
+- Installation
+- Local development
+- Contract compilation
+- Contract deployment
+- Contract address configuration
+- Testing
+- Vercel deployment
+- Privacy model
+- Security model
+- Data hashing
+- Ownership model
+- Limitations
+- Future Gemini integration
+
+The README MUST include:
+
+"RICIPT is a blockchain-backed provenance/purchase record and does not by
+itself constitute legal title or determine legal ownership of a physical
+device."
+
+Also explain the difference between:
+
+BLOCKCHAIN PROOF OF RECORD
+
+and:
+
+REAL-WORLD TRUTH.
+
+================================================================================
+40. VERCEL
+================================================================================
+
+The frontend must deploy cleanly to Vercel.
+
+Use Vite.
+
+No backend required.
+
+No Express.
+
+No API server.
+
+No database.
+
+Configure SPA routing correctly.
+
+Ensure routes such as:
+
+/
+ /create
+ /passes
+ /passport/:tokenId
+ /verify
+
+work after refreshing the page on Vercel.
+
+Document:
+
+1. Push project to GitHub
+2. Import into Vercel
+3. Set:
+   VITE_REOWN_PROJECT_ID
+   VITE_TESTNET_CONTRACT_ADDRESS
+   VITE_MAINNET_CONTRACT_ADDRESS
+4. Deploy
+
+Do not put secrets into Git.
+
+================================================================================
+41. SECURITY
+================================================================================
+
+Never request:
+
+- private key from normal users
+- seed phrase
+- wallet password
+
+Never store wallet credentials.
+
+Never send private wallet information to a server.
+
+Validate:
+
+- addresses
+- numbers
+- dates
+- strings
+- contract responses
+
+Prevent:
+
+- duplicate mint submissions
+- invalid transfers
+- accidental wrong-network transactions
+
+================================================================================
+42. CONTRACT DATA MODEL
+================================================================================
+
+Think carefully about what belongs on-chain.
+
+Possible structure:
+
+struct Passport {
+    bytes32 dataHash;
+    string metadataURI;
+    address issuer;
+    uint256 createdAt;
+    Status status;
+}
+
+The NFT ownership itself comes from ERC-721.
+
+Avoid storing unnecessary sensitive data directly in Solidity.
+
+The final design must balance:
+
+Hackathon simplicity
++
+Privacy
++
+Verifiability
++
+Gas cost.
+
+Explain the final design choice in comments and README.
+
+================================================================================
+43. TWO-COPY CONCEPT
+================================================================================
+
+Do NOT create two NFTs for one physical device.
+
+There should be ONE Device Passport.
+
+The physical device may move between owners.
+
+Therefore:
+
+Device
+ ↓
+ONE Passport NFT
+ ↓
+Owner A
+ ↓
+Transfer
+ ↓
+Owner B
+
+The issuer can remain recorded separately.
+
+This prevents duplicate ownership representations.
+
+================================================================================
+44. SUCCESSFUL DEMO
+================================================================================
+
+The finished MVP must support:
+
+1. Open RICIPT.
+2. Connect an EVM wallet.
+3. Automatically handle BOT Chain network configuration if needed.
+4. Open Create Passport.
+5. Enter device information.
+6. Select/enter purchase date on mobile.
+7. Review passport.
+8. Confirm.
+9. Sign mint transaction.
+10. Wait for confirmation.
+11. Show token ID.
+12. Open My Passports.
+13. See the passport.
+14. Open passport details.
+15. Show QR.
+16. Open public verification.
+17. Transfer passport.
+18. Connect a second wallet.
+19. See the passport under the second wallet.
+20. Public verification still works without a wallet.
+
+This is the MVP definition of done.
+
+================================================================================
+45. CODE QUALITY
+================================================================================
+
+The project should be:
+
+- modular
+- readable
+- beginner-friendly
+- maintainable
+- easy to debug
+- not unnecessarily abstract
+- not repetitive
+- well commented
+
+Do not create one 3,000-line component.
+
+Do not put wallet logic inside random pages.
+
+Do not put blockchain transactions directly into UI components if they can be
+cleanly separated.
+
+Use hooks/services/context where appropriate.
+
+================================================================================
+46. DO NOT FABRICATE VALUES
+================================================================================
+
+Never invent:
+
+- BOT Chain chain IDs
+- BOT Chain RPC URLs
+- explorer URLs
+- contract addresses
+- Reown Project IDs
+- wallet addresses
+- private keys
+
+Verify current BOT Chain network information from official developer
+documentation before implementing it.
+
+If something must be supplied by me:
+
+use:
+
+YOUR_VALUE_HERE
+
+and tell me exactly where to put it.
+
+================================================================================
+47. BUILD THE ENTIRE PROJECT
+================================================================================
+
+Build the complete initial project.
+
+Do not stop after creating the architecture.
+
+Generate the actual implementation.
+
+Do not leave:
+
+TODO
+
+IMPLEMENT_THIS
+
+ADD_CODE_HERE
+
+in core functionality.
+
+If a value genuinely cannot be known before deployment, use a clearly
+identified configuration placeholder.
+
+================================================================================
+48. IMPORTANT — DO NOT OVERENGINEER
+================================================================================
+
+Remember this is a hackathon MVP.
+
+Do NOT add:
+
+- backend
+- database
+- authentication server
+- microservices
+- GraphQL
+- Redux unless genuinely necessary
+- complex state management
+- marketplace
+- payment processor
+- DAO
+- staking
+- tokenomics
+- unnecessary cloud services
+
+React + Reown + Wagmi + viem + Solidity is enough.
+
+================================================================================
+49. AFTER GENERATING THE PROJECT
+================================================================================
+
+After the code is generated, provide:
+
+SECTION A
+FINAL PROJECT TREE
+
+SECTION B
+WHAT EVERY FILE DOES
+
+For each file give a short explanation.
+
+Also explain the important functions.
+
+SECTION C
+INSTALLATION
+
+Give exact commands.
+
+SECTION D
+ENVIRONMENT CONFIGURATION
+
+Explain:
+
+VITE_REOWN_PROJECT_ID
+
+VITE_TESTNET_CONTRACT_ADDRESS
+
+VITE_MAINNET_CONTRACT_ADDRESS
+
+DEPLOYER_PRIVATE_KEY
+
+Clearly explain which variables are public and which are secret.
+
+SECTION E
+NETWORK SWITCH
+
+Explain exactly how TN/MN works.
+
+SECTION F
+SMART CONTRACT DEPLOYMENT
+
+Give exact commands and deployment steps.
+
+SECTION G
+LOCAL TEST
+
+Give the exact order I should test:
+
+wallet
+network
+create
+mint
+passes
+details
+verify
+transfer
+second wallet
+
+SECTION H
+MOBILE TESTING
+
+Explain how to test:
+
+Android Chrome
+Wallet DApp browsers
+WalletConnect QR
+wallet deep links
+
+SECTION I
+VERCEL DEPLOYMENT
+
+Give the exact Vercel setup.
+
+SECTION J
+DEBUGGING
+
+List likely problems and exactly where to look.
+
+================================================================================
+50. FINAL PRODUCT CONCEPT
+================================================================================
+
+The final product should communicate:
+
+              PHYSICAL DEVICE
+                     ↓
+              PURCHASE RECORD
+                     ↓
+                  RICIPT
+                     ↓
+              DEVICE PASSPORT
+                     ↓
+                BOT CHAIN
+                     ↓
+             VERIFIED RECORD
+                     ↓
+              NFT OWNERSHIP
+                     ↓
+              TRANSFER TO BUYER
+                     ↓
+             PUBLIC VERIFICATION
+
+RICIPT is not claiming that a blockchain magically makes a physical device
+authentic.
+
+It creates a persistent, transferable, cryptographically verifiable record
+associated with the device.
+
+Keep the product honest.
+
+Keep the implementation simple.
+
+Make the UI excellent.
+
+Make wallet connectivity robust.
+
+Make mobile browsers a first-class target.
+
+And make the code easy enough for me to debug without needing to reverse
+engineer a 10,000-line abstraction layer.
+
+================================================================================
+END OF SPECIFICATION
+================================================================================

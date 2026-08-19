@@ -1,0 +1,93 @@
+==================================================
+ RICIPT — BUILD FEEDBACK
+ Generated from prompt.txt spec. Read this before you start testing.
+==================================================
+
+WHAT WAS BUILT
+--------------
+A complete, working React + Vite + Reown AppKit + wagmi + viem MVP for
+blockchain-backed Device Passports on BOT Chain. No backend, no database,
+no Gemini, no marketplace — exactly the hackathon scope from the spec.
+
+Verified working:
+  - `npm run build` passes (Vite production build).
+  - `npm run compile` compiles DevicePassport.sol (Hardhat, evm target: paris)
+    and regenerates src/blockchain/artifact.js.
+  - Headless-browser smoke test: /, /create, /passes, /verify?tokenId=1 all
+    render without a single console/page error on a 390x844 (mobile) viewport.
+  - SPA routes (/, /create, /passes, /passport/:id, /verify) serve on refresh.
+
+KEY DECISIONS (read these — they affect how you test)
+-----------------------------------------------------
+1. NETWORK VALUES ARE REAL. Verified against official BOT Chain docs:
+     Testnet: chainId 968, rpc https://rpc.bohr.life, explorer https://scan.bohr.life
+     Mainnet: chainId 677, rpc https://rpc.botchain.ai, explorer https://scan.botchain.ai
+   (Mainnet is 677, NOT 968. Testnet is 968.)
+   They live ONLY in src/config/networks.testnet.js / networks.mainnet.js.
+
+2. ONE ACTIVE NETWORK at a time. src/config/chains.js has:
+     export const ACTIVE_NETWORK = 'TN';   // "TN" testnet | "MN" mainnet
+   Flip this one line to activate mainnet. That's the whole switch.
+
+3. Reown owns the wallet. We only consume the EIP-1193 provider via
+   useAppKitProvider('eip155'). No window.ethereum assumptions. Normal Chrome
+   with no extension works via AppKit QR / deep links.
+
+4. Wrong-network handling is POST-connection and never disconnects you.
+   Rejecting the add/switch shows "Network change cancelled. Your wallet is
+   still connected." The session survives on purpose (spec section 34).
+
+5. Privacy is honest:
+   - On-chain: keccak256 hash of canonical data, issuer, timestamp, status, owner.
+   - IMEI / serial / receipt number are shown in the form/review but NEVER go
+     on-chain and are not persisted to the metadata cache.
+   - localStorage = display metadata + drafts only. NOT secure storage.
+
+6. One passport per device. Transfer = standard ERC-721 transferFrom. Status
+   updates allowed for owner / issuer / contract-owner only.
+
+7. Contract address config:
+   VITE_TESTNET_CONTRACT_ADDRESS / VITE_MAINNET_CONTRACT_ADDRESS in .env.
+   Until set, the app shows a clear "CONTRACT NOT CONFIGURED" gate instead of
+   failing silently.
+
+THINGS TO WATCH / KNOWN LIMITATIONS
+-----------------------------------
+- DEPLOYER_PRIVATE_KEY is a plain .env var consumed by hardhat (deploy/deploy.cjs).
+  It is NOT a VITE_ var so it never reaches the browser. Do not paste it into
+  Vercel for the frontend.
+- The My-Passports "minted token id" read assumes sequential minting (the
+  contract mints 1,2,3…). Fine for a demo; an event parser/indexer is the
+  proper long-term fix.
+- Wallet-specific quirks (OKX "Network Error", Bitget "Transaction Request
+  Failed", a deep link that never opens a session) cannot be eliminated — the
+  wallet controls them. The app just handles each failure gracefully with a
+  retryable state.
+- React 18 + wagmi 2.x is intentional: Reown AppKit 1.8 requires wagmi 2.x
+  (not wagmi 3). Do not "upgrade" wagmi to v3 or AppKit breaks.
+- @openzeppelin/contracts is pinned to 5.0.2 because 5.4+ emits `mcopy`
+  (Cancun opcode). 5.0.2 compiles to paris and stays maximally compatible
+  with BOT Chain. Don't bump it casually.
+- Two files are .cjs on purpose: hardhat.config.cjs and deploy/deploy.cjs
+  (package.json is "type": "module"). Don't rename them to .js.
+- The build emits a >500 kB chunk warning — that's AppKit/wagmi. Normal for
+  this stack; not a bug.
+- npm audit reports vulnerabilities in transitive deps of Reown/hardhat.
+  Standard for this stack; nothing used by the MVP's runtime path that we
+  can patch without breaking AppKit. Do not run `npm audit fix --force`.
+
+THE DEMO DOES NOT MINT YET
+--------------------------
+That is expected. You must:
+  1) Create a Reown project → VITE_REOWN_PROJECT_ID
+  2) Fund a wallet with test BOT (faucet.botchain.ai/basic)
+  3) DEPLOYER_PRIVATE_KEY in .env → npm run deploy:testnet
+  4) Paste the printed address into VITE_TESTNET_CONTRACT_ADDRESS
+  5) npm run dev → follow steps.txt
+
+BUILD VERDICT
+-------------
+Solid, demoable MVP. The arcade dark UI, wallet UX, network state machine,
+transaction feedback, public verification and honest privacy model are all in
+place and verified to boot cleanly. Remaining work is configuration + testing
+on your side (and optionally deploying the contract + the app to Vercel).

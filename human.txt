@@ -1,0 +1,2 @@
+after creation, create a feedback.txt file and paste your feeedback, also crate a steps.txt file for any steps i am to follow next, maybe testing contract deployment, etc
+

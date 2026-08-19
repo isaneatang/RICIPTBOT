@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Env files — NEVER commit secrets.
+# `.env.example` is the only env file we keep in the repo.
+.env
+.env.*
+!.env.example
+
+# Hardhat artifacts & caches
+artifacts/
+cache/
+typechain-types/
+
+# Logs & OS junk
+logs/
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.local

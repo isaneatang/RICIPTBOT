@@ -1,0 +1,530 @@
+/* ==========================================================================
+   RICIPT — COMPONENT STYLES
+   Navbar, wallet chip, passport cards, preview, tx status, modals, QR.
+   ========================================================================== */
+
+/* ---------------- Navbar ---------------- */
+
+.navbar {
+  border-bottom: 2px solid var(--border);
+  background: rgba(10, 14, 10, 0.9);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(4px);
+}
+
+.navbar__inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 64px;
+}
+
+.navbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.navbar__brand:hover {
+  text-decoration: none;
+}
+
+.navbar__logo {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: #0a0e0a;
+  font-weight: 700;
+  font-size: 1.05rem;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+.navbar__name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--text);
+}
+
+.navbar__links {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.nav-link {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  padding: 8px 12px;
+  color: var(--text-muted);
+  border: 2px solid transparent;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+}
+
+.nav-link:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+  text-decoration: none;
+}
+
+.nav-link--active {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.navbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.network-pill {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  padding: 5px 8px;
+  border: 2px solid var(--border-strong);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+}
+
+.network-pill--ok {
+  color: var(--ok);
+  border-color: var(--ok);
+}
+
+.network-pill--warn {
+  color: var(--warn);
+  border-color: var(--warn);
+}
+
+/* ---------------- Wallet chip ---------------- */
+
+.wallet-chip {
+  display: inline-flex;
+  align-items: stretch;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.wallet-chip__address {
+  background: rgba(200, 245, 74, 0.08);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 8px 12px;
+  border: none;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.wallet-chip__disconnect {
+  background: var(--bg-panel-2);
+  color: var(--text-muted);
+  border: none;
+  border-left: 2px solid var(--accent);
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  min-height: 44px;
+}
+
+.wallet-chip__disconnect:hover {
+  color: var(--danger);
+}
+
+/* ---------------- Network gate ---------------- */
+/* (styles live in globals.css under .gate) */
+
+/* ---------------- Passport cards ---------------- */
+
+.passport-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-3);
+}
+
+.passport-card {
+  background: var(--bg-panel);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.passport-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.passport-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.passport-card__title {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);
+}
+
+.passport-card__token {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.passport-card__device {
+  font-size: 1.1rem;
+  min-height: 2.4em;
+}
+
+.passport-card__meta {
+  margin: 0;
+  padding: 0;
+}
+
+.passport-card__meta > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-top: 1px solid var(--border);
+}
+
+.passport-card__meta dt {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+}
+
+.passport-card__meta dd {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.passport-card__actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: auto;
+}
+
+/* Status badges */
+.status-badge {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border-strong);
+  color: var(--text-muted);
+}
+
+.status-badge--verified {
+  color: var(--ok);
+  border-color: var(--ok);
+}
+
+.status-badge--lost,
+.status-badge--stolen {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.status-badge--disputed {
+  color: var(--warn);
+  border-color: var(--warn);
+}
+
+.status-badge--recovered {
+  color: var(--accent-2);
+  border-color: var(--accent-2);
+}
+
+/* ---------------- Passport preview ---------------- */
+
+.passport-preview {
+  background: var(--bg-panel);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  max-width: 560px;
+  margin: var(--space-3) 0;
+  overflow: hidden;
+}
+
+.passport-preview__stripe {
+  height: 8px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--accent) 0 12px,
+    #0a0e0a 12px 24px,
+    var(--accent-2) 24px 36px
+  );
+}
+
+.passport-preview__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-3) 0;
+}
+
+.passport-preview__brand {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+}
+
+.passport-preview__sub {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+}
+
+.passport-preview__device {
+  padding: var(--space-2) var(--space-3);
+  font-size: 1.15rem;
+  border-bottom: 1px dashed var(--border-strong);
+}
+
+.passport-preview__rows {
+  margin: 0;
+  padding: var(--space-2) var(--space-3) var(--space-3);
+}
+
+.passport-preview__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.passport-preview__row:last-child {
+  border-bottom: none;
+}
+
+.passport-preview__row dt {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.passport-preview__row dd {
+  margin: 0;
+  font-size: 0.88rem;
+  text-align: right;
+  word-break: break-word;
+}
+
+.passport-preview__note {
+  padding: 0 var(--space-3) var(--space-3);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+/* ---------------- Transaction status ---------------- */
+
+.tx-status {
+  border: 2px solid var(--border-strong);
+  background: var(--bg-panel);
+  padding: var(--space-3);
+  margin: var(--space-3) 0;
+  border-radius: var(--radius-sm);
+}
+
+.tx-status--ok {
+  border-color: var(--ok);
+}
+
+.tx-status--err {
+  border-color: var(--danger);
+}
+
+.tx-status__steps {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.tx-status__step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+
+.tx-status__dot {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--border-strong);
+  border-radius: 50%;
+}
+
+.tx-status__step--active {
+  color: var(--accent);
+}
+
+.tx-status__step--active .tx-status__dot {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.tx-status__step--done .tx-status__dot {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: #0a0e0a;
+}
+
+.tx-status__message {
+  margin: var(--space-2) 0 0;
+  font-weight: 600;
+}
+
+.tx-status__link {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.tx-status__error {
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+
+/* ---------------- Modals ---------------- */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 6, 4, 0.82);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+  padding: var(--space-3);
+}
+
+.modal {
+  background: var(--bg-panel);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+}
+
+.modal--sm {
+  max-width: 420px;
+}
+
+.modal__title {
+  font-size: 1.15rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.modal__text {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  flex-wrap: wrap;
+}
+
+/* ---------------- QR ---------------- */
+
+.qr-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.qr-display__box {
+  background: #0a0e0a;
+  border: 2px solid var(--border-strong);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.qr-display__caption {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* ---------------- Empty states ---------------- */
+
+.empty {
+  border: 2px dashed var(--border-strong);
+  padding: var(--space-5);
+  text-align: center;
+  border-radius: var(--radius-md);
+}
+
+.empty__title {
+  font-family: var(--font-mono);
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.empty__text {
+  color: var(--text-dim);
+  max-width: 480px;
+  margin: 0 auto var(--space-3);
+}
+
+/* Responsive tweaks */
+@media (max-width: 720px) {
+  .navbar__inner {
+    flex-wrap: wrap;
+    padding: var(--space-2) var(--space-2);
+    row-gap: var(--space-2);
+  }
+  .navbar__links {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+  .network-pill {
+    display: none;
+  }
+  .modal__actions {
+    justify-content: stretch;
+  }
+  .modal__actions .btn {
+    flex: 1;
+  }
+}
