@@ -26,6 +26,7 @@ import { usePassport } from '../hooks/usePassport.js';
 import { hashPassportData } from '../utils/hashing.js';
 import { validatePassportForm } from '../utils/validation.js';
 import { saveDraft, getDraft, clearDraft } from '../utils/storage.js';
+import Select from '../components/Select.jsx';
 
 const DEVICE_TYPES = [
   'Smartphone',
@@ -75,8 +76,9 @@ export default function CreatePassport() {
     if (step === 1) saveDraft(form);
   }, [form, step]);
 
-  const handleChange = (key) => (event) => {
-    setForm((prev) => ({ ...prev, [key]: event.target.value }));
+  const handleChange = (key) => (eventOrValue) => {
+    const value = typeof eventOrValue === 'string' ? eventOrValue : eventOrValue.target.value;
+    setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: undefined }));
   };
 
@@ -156,14 +158,14 @@ export default function CreatePassport() {
                 <div className="form-row">
                   <label className="field">
                     <span className="field__label">DEVICE TYPE *</span>
-                    <select className="field__input" value={form.deviceType} onChange={handleChange('deviceType')}>
-                      <option value="">Select type...</option>
-                      {DEVICE_TYPES.map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
+                    <Select
+                      className="field__input"
+                      aria-label="Device type"
+                      placeholder="Select type..."
+                      value={form.deviceType}
+                      options={DEVICE_TYPES.map((type) => ({ value: type, label: type }))}
+                      onChange={handleChange('deviceType')}
+                    />
                     {errors.deviceType && <span className="field__error">{errors.deviceType}</span>}
                   </label>
 
@@ -310,25 +312,27 @@ export default function CreatePassport() {
 
                   <label className="field">
                     <span className="field__label">CURRENCY *</span>
-                    <select className="field__input" value={form.currency} onChange={handleChange('currency')}>
-                      {CURRENCIES.map((currency) => (
-                        <option key={currency} value={currency}>
-                          {currency}
-                        </option>
-                      ))}
-                    </select>
+                    <Select
+                      className="field__input"
+                      aria-label="Currency"
+                      placeholder="Select currency"
+                      value={form.currency}
+                      options={CURRENCIES.map((currency) => ({ value: currency, label: currency }))}
+                      onChange={handleChange('currency')}
+                    />
                     {errors.currency && <span className="field__error">{errors.currency}</span>}
                   </label>
 
                   <label className="field">
                     <span className="field__label">WARRANTY *</span>
-                    <select className="field__input" value={form.warranty} onChange={handleChange('warranty')}>
-                      {WARRANTIES.map((warranty) => (
-                        <option key={warranty} value={warranty}>
-                          {warranty}
-                        </option>
-                      ))}
-                    </select>
+                    <Select
+                      className="field__input"
+                      aria-label="Warranty"
+                      placeholder="Select warranty"
+                      value={form.warranty}
+                      options={WARRANTIES.map((warranty) => ({ value: warranty, label: warranty }))}
+                      onChange={handleChange('warranty')}
+                    />
                     {errors.warranty && <span className="field__error">{errors.warranty}</span>}
                   </label>
                 </div>
@@ -410,8 +414,7 @@ export default function CreatePassport() {
               {mintedTokenId != null && (
                 <div className="result__success">
                   <p>
-                    Your Device Passport <strong>#{mintedTokenId}</strong> is live on{' '}
-                    {address ? 'BOT Chain' : 'BOT Chain'}.
+                     Your Device Passport <strong>#{mintedTokenId}</strong> is live on BOT Chain.
                   </p>
                   <div className="result__actions">
                     <Link to={`/passport/${mintedTokenId}`} className="btn btn--primary btn--lg">

@@ -16,12 +16,12 @@ export function shortAddress(address, start = 6, end = 4) {
 
 /**
  * Format a unix timestamp (seconds) as a human-readable date string.
- * e.g. 1755561600 -> "Aug 18, 2025". Returns "—" for falsy input.
+ * e.g. 1755561600 -> "Aug 18, 2025". Returns an empty string for falsy input.
  */
 export function formatTimestamp(seconds) {
-  if (!seconds) return '—';
+  if (!seconds) return '';
   const ms = Number(seconds) * 1000;
-  if (!Number.isFinite(ms) || ms <= 0) return '—';
+  if (!Number.isFinite(ms) || ms <= 0) return '';
   try {
     return new Date(ms).toLocaleDateString(undefined, {
       year: 'numeric',
@@ -29,14 +29,14 @@ export function formatTimestamp(seconds) {
       day: 'numeric',
     });
   } catch {
-    return '—';
+    return '';
   }
 }
 
 export function formatFullTimestamp(seconds) {
-  if (!seconds) return '—';
+  if (!seconds) return '';
   const ms = Number(seconds) * 1000;
-  if (!Number.isFinite(ms) || ms <= 0) return '—';
+  if (!Number.isFinite(ms) || ms <= 0) return '';
   try {
     return new Date(ms).toLocaleString(undefined, {
       year: 'numeric',
@@ -46,7 +46,7 @@ export function formatFullTimestamp(seconds) {
       minute: '2-digit',
     });
   } catch {
-    return '—';
+    return '';
   }
 }
 
@@ -66,7 +66,7 @@ export function shortHash(hash, start = 10, end = 8) {
  */
 export function formatPrice(price, currency) {
   const n = Number(price);
-  if (!Number.isFinite(n)) return '—';
+  if (!Number.isFinite(n)) return '';
   const formatted = n.toLocaleString(undefined, { maximumFractionDigits: 2 });
   return currency ? `${formatted} ${currency}` : formatted;
 }

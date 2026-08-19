@@ -23,7 +23,7 @@ export default function PassportPreview({ data, footerNote }) {
     warranty,
   } = data;
 
-  const deviceName = manufacturer && model ? `${manufacturer} ${model}` : model || manufacturer || '—';
+  const deviceName = manufacturer && model ? `${manufacturer} ${model}` : model || manufacturer || '';
 
   const rows = [
     { label: 'DEVICE TYPE', value: deviceType },
@@ -51,7 +51,7 @@ export default function PassportPreview({ data, footerNote }) {
         {rows.map((row) => (
           <div key={row.label} className="passport-preview__row">
             <dt>{row.label}</dt>
-            <dd>{row.value || '—'}</dd>
+            <dd>{row.value || ''}</dd>
           </div>
         ))}
       </dl>

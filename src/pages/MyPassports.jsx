@@ -108,8 +108,8 @@ export default function MyPassports() {
         <div className="empty">
           <p className="empty__title">NO PASSPORTS YET</p>
           <p className="empty__text">
-            Blockchain ownership is authoritative — this list comes straight from the contract, not
-            from your browser.
+            Blockchain ownership is authoritative. This list comes straight from the
+            contract, not from your browser.
           </p>
           <Link to="/create" className="btn btn--primary">
             CREATE YOUR FIRST PASSPORT

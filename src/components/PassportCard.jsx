@@ -34,7 +34,7 @@ export default function PassportCard({ tokenId, meta, owner, status }) {
         </div>
         <div>
           <dt>OWNER</dt>
-          <dd className="mono">{owner ? shortAddress(owner) : '—'}</dd>
+          <dd className="mono">{owner ? shortAddress(owner) : ''}</dd>
         </div>
       </dl>
 

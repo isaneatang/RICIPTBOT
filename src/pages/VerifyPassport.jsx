@@ -134,7 +134,7 @@ export default function VerifyPassport() {
             <p>{error}</p>
             <p className="verify__result-note">
               {`"Passport does not exist" is a blockchain answer. It means no passport was minted
-              for this token id on ${activeNetwork.label} — it does not mean the device itself is
+              for this token id on ${activeNetwork.label}. It does not mean the device itself is
               fake.`}
             </p>
           </div>
@@ -159,11 +159,11 @@ export default function VerifyPassport() {
               </div>
               <div className="record__row">
                 <dt>ISSUER</dt>
-                <dd className="mono">{passport.issuer ? shortAddress(passport.issuer) : '—'}</dd>
+                <dd className="mono">{passport.issuer ? shortAddress(passport.issuer) : ''}</dd>
               </div>
               <div className="record__row">
                 <dt>CURRENT OWNER</dt>
-                <dd className="mono">{owner ? shortAddress(owner) : '—'}</dd>
+                <dd className="mono">{owner ? shortAddress(owner) : ''}</dd>
               </div>
               <div className="record__row">
                 <dt>CREATED</dt>
@@ -189,8 +189,8 @@ export default function VerifyPassport() {
               <div className="verify__local">
                 <p className="verify__local-title">LOCAL DISPLAY DATA (THIS BROWSER ONLY)</p>
                 <p className="verify__local-text">
-                  This device was recently minted or viewed in this browser. It is NOT part of the
-                  on-chain record and should not be treated as a blockchain-backed claim.
+                  This device was minted or viewed in this browser. It is NOT part of the on-chain
+                  record and is not a blockchain-backed claim.
                 </p>
                 <ul className="verify__local-list">
                   <li>

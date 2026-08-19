@@ -34,7 +34,7 @@ export default function Home() {
 
         <p className="hero__text">
           RICIPT creates a persistent, transferable, cryptographically verifiable purchase and
-          provenance record for your physical device — stored on BOT Chain.
+          provenance record for your physical device on BOT Chain.
         </p>
 
         <div className="hero__actions">
@@ -80,8 +80,8 @@ export default function Home() {
         <h2 className="why__title">A PASSPORT, NOT A PROMISE</h2>
         <p className="why__text">
           RICIPT records that a specific dataset was committed to the blockchain at a specific time
-          by a specific wallet. It is <strong>blockchain proof of record</strong> — it does not
-          independently prove that the purchase, retailer, or device are legitimate.
+          by a specific wallet. It is <strong>blockchain proof of record</strong>, not proof that the
+          purchase, retailer, or device are legitimate.
         </p>
         <Link to="/verify" className="link-arrow">
           Verify a passport without a wallet →

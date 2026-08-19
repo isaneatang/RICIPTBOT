@@ -42,8 +42,8 @@ export default function NetworkGate({ children, requireContract = true }) {
       <div className="gate">
         <h2 className="gate__title">WALLET REQUIRED</h2>
         <p className="gate__text">
-          Connect a wallet to continue. Your wallet session stays on your device — RICIPT never
-          asks for your private key or seed phrase.
+          Connect a wallet to continue. Your wallet session stays on your device.
+          RICIPT never asks for your private key or seed phrase.
         </p>
         <button type="button" className="btn btn--primary" onClick={connect}>
           CONNECT WALLET

@@ -16,6 +16,7 @@ import QRCodeDisplay from '../components/QRCodeDisplay.jsx';
 import TransferModal from '../components/TransferModal.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
 import TransactionStatus from '../components/TransactionStatus.jsx';
+import Select from '../components/Select.jsx';
 import { useWallet } from '../hooks/useWallet.js';
 import { usePassport } from '../hooks/usePassport.js';
 import {
@@ -140,7 +141,7 @@ export default function PassportDetails() {
           </div>
 
           {meta && (
-            <PassportPreview data={meta} footerNote="Local display data. Not stored on-chain by design." />
+            <PassportPreview data={meta} footerNote="Local data. Not stored on-chain." />
           )}
 
           <dl className="record">
@@ -152,11 +153,11 @@ export default function PassportDetails() {
             </div>
             <div className="record__row">
               <dt>ISSUER</dt>
-              <dd className="mono">{passport.issuer ? shortAddress(passport.issuer) : '—'}</dd>
+              <dd className="mono">{passport.issuer ? shortAddress(passport.issuer) : ''}</dd>
             </div>
             <div className="record__row">
               <dt>CURRENT OWNER</dt>
-              <dd className="mono">{owner ? shortAddress(owner) : '—'}</dd>
+              <dd className="mono">{owner ? shortAddress(owner) : ''}</dd>
             </div>
             <div className="record__row">
               <dt>CREATED</dt>
@@ -191,22 +192,16 @@ export default function PassportDetails() {
                   UPDATE STATUS (OWNER / ISSUER ONLY)
                 </label>
                 <div className="details__status-row">
-                  <select
-                    id="status-select"
-                    className="field__input"
-                    value=""
-                    onChange={(event) => setShowStatusConfirm(Number(event.target.value))}
-                    disabled={isBusy}
-                  >
-                    <option value="" disabled>
-                      Change status…
-                    </option>
-                    {PASSPORT_STATUS_LIST.map((s) => (
-                      <option key={s.value} value={s.value}>
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
+                   <Select
+                     id="status-select"
+                     className="field__input"
+                     aria-label="Update passport status"
+                     placeholder="Change status…"
+                     value=""
+                     disabled={isBusy}
+                     options={PASSPORT_STATUS_LIST.map((s) => ({ value: s.value, label: s.label }))}
+                     onChange={(value) => setShowStatusConfirm(Number(value))}
+                   />
                 </div>
               </div>
             )}
@@ -249,7 +244,7 @@ export default function PassportDetails() {
       <ConfirmModal
         open={showStatusConfirm != null}
         title={`SET STATUS: ${PASSPORT_STATUSES[showStatusConfirm] ?? ''}`}
-        message="This updates the passport's on-chain lifecycle status. The contract only allows the owner, issuer, or contract owner."
+        message="Only the owner, issuer, or contract owner can update on-chain status."
         confirmLabel="CONFIRM STATUS"
         danger={[1, 2].includes(showStatusConfirm)}
         busy={isBusy}

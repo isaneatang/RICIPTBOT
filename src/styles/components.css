@@ -415,6 +415,97 @@
   font-size: 0.85rem;
 }
 
+/* ---------------- Custom Select (DApp-browser safe) ----------------
+   Native <select> menus are OS-rendered and often fail to open inside
+   mobile wallet WebViews, so we build the dropdown entirely in the DOM. */
+
+.select {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.select__control {
+  appearance: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  text-align: left;
+  width: 100%;
+}
+
+.select__control:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.select__value {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.select__arrow {
+  flex-shrink: 0;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.select__menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  margin-top: 4px;
+  max-height: 260px;
+  overflow-y: auto;
+  background: var(--bg-panel);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.42);
+}
+
+.select__option-wrapper {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.select__option {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 10px 12px;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.select__option:hover,
+.select__option--highlighted {
+  background: rgba(200, 245, 74, 0.08);
+}
+
+.select__option--selected {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.select__option--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* ---------------- Modals ---------------- */
 
 .modal-backdrop {
