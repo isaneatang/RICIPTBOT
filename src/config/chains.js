@@ -16,7 +16,7 @@
 import { testnetConfig } from './networks.testnet.js';
 import { mainnetConfig } from './networks.mainnet.js';
 
-export const ACTIVE_NETWORK = 'TN'; // valid values: "TN" | "MN"
+export const ACTIVE_NETWORK = 'MN'; // valid values: "TN" | "MN"
 
 export const ACTIVE_NETWORKS = {
   TN: testnetConfig,
